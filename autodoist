@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 import click
+import json
+
+JACKET_TEMP_THRESHOLD = 50
+COAT_TEMP_THRESHOLD = 40
+GLOVES_TEMP_THRESHOLD = 35
 
 @click.group()
 def cli():
@@ -15,13 +20,46 @@ def travel_checklist():
 
 @travel_checklist.command()
 @click.option('--file', 
-              help='json or yaml file with specification of checklist')
+              help='json file with specification of checklist')
 def create(file):
     '''If no --file specified, prompt the user interactively to get the params'''
-    if file is None:
-        click.echo('need to interactively prompt the user for a bunch of stuff now'
-    # Prompt the user, etc...
-    click.echo('template')
+    if file is not None:
+        try:
+            with open(file) as f:
+                specs = json.loads(f.read())
+        except json.decoder.JSONDecodeError as e:
+            # Raise a JSONDecodeError with a better message than the automatic
+            # one.
+            msg = 'File {} is not valid JSON'.format(file)
+            raise json.decoder.JSONDecodeError(msg, doc=e.doc, pos=e.pos)
+    else:
+        specs = get_specs_from_user()
+
+def get_specs_from_user():
+    name = click.prompt('Name for the project')
+    n_days = click.prompt('Including travel time, how many days will this trip be?',
+                          type=int, prompt_suffix=' ')
+    can_wash = click.prompt('Will you have access to a washer and dryer during the trip?',
+                            type=bool, prompt_suffix=' ')
+    is_flying  = click.prompt('Are you flying?',
+                              type=bool, prompt_suffix=' ')
+    dress_days = click.prompt('How many days will you need to wear clothing nicer than jeans?',
+                              type=int, prompt_suffix=' ')
+    max_temp = click.prompt('On a typical day, what is the maximum likely temperature?',
+                            type=int, prompt_suffix=' ')
+    min_temp = click.prompt('On a typical day, what is the minimum likely temperature?',
+                            type=int, prompt_suffix=' ')
+    # If it's already cool enough that you'll need a jacket and you'll be
+    # spending a lot of time outdoors, probably a good idea to bring warm
+    # clothes.
+    if GLOVES_TEMP_THRESHOLD < min_temp < JACKET_TEMP_THRESHOLD :
+        p = ('Will you be spending an extended period of time outdoors'
+             'when it might be somewhat cold?')
+        extended_outdoor_time = click.prompt(p, type=bool, prompt_suffix=' ')
+        del p
+    else:
+        extended_outdoor_time = False
+    return locals()
 
 if __name__ == '__main__':
     cli()
