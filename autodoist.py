@@ -39,8 +39,8 @@ def create(file):
     # Create the CSV.
     csv_path = pathlib.Path(specs['csv_name'])
     if csv_path.exists():
-        click.confirm('{} already exists. Do you want to overwrite it?',
-                      abort=True)
+        msg = '{} already exists. Do you want to overwrite it?'
+        click.confirm(msg.format(csv_path), abort=True)
     with open(csv_path, 'w') as f:
         csv_content = tc_util.gen_travel_checklist_csv_from_specs(specs)
         f.write(csv_content)
