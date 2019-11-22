@@ -3,7 +3,7 @@ import click
 import json
 import os
 import pathlib
-import travel_checklist_util as tc_util
+import util.travel_checklist as tc_util
 
 @click.group()
 def cli():
