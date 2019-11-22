@@ -6,7 +6,8 @@ GLOVES_TEMP_THRESHOLD = 35
 
 def get_specs_from_user():
     name = click.prompt('Name for the project')
-    csv_name = click.prompt('Name of template file to be created')
+    csv_name = click.prompt('Name of template file to be created',
+                            default=name + '.csv')
     n_days = click.prompt('Including travel time, how many days will this trip be?',
                           type=int, prompt_suffix=' ')
     can_wash = click.prompt('Will you have access to a washer and dryer during the trip?',
@@ -19,7 +20,7 @@ def get_specs_from_user():
                             type=int, prompt_suffix=' ')
     min_temp = click.prompt('On a typical day, what is the minimum likely temperature?',
                             type=int, prompt_suffix=' ')
-    # If it's already cool enough that you'll need a jacket and you'll be
+    # If it's already cold enough that you'll need a jacket and you'll be
     # spending a lot of time outdoors, probably a good idea to bring warm
     # clothes.
     if GLOVES_TEMP_THRESHOLD < min_temp < JACKET_TEMP_THRESHOLD:

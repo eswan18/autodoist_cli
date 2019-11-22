@@ -2,7 +2,7 @@
 import click
 import json
 import os
-import pathlib
+from pathlib import Path
 import util.travel_checklist as tc_util
 
 @click.group()
@@ -37,7 +37,7 @@ def create(file):
     specs['extended_outdoor_time'] = specs.get('extended_outdoor_time', False)
 
     # Create the CSV.
-    csv_path = pathlib.Path(specs['csv_name'])
+    csv_path = Path(specs['csv_name'])
     if csv_path.exists():
         msg = '{} already exists. Do you want to overwrite it?'
         click.confirm(msg.format(csv_path), abort=True)
