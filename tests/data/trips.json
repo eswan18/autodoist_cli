@@ -1,0 +1,16 @@
+[
+    {
+        "spec": {
+            "name": "test-trip",
+            "csv_name": "test-trip.csv",
+            "n_days": 5,
+            "can_wash": false,
+            "is_flying": false,
+            "dress_days": 2,
+            "max_temp": 88,
+            "min_temp": 55,
+            "extended_outdoor_time": false
+        }
+    }
+]
+
