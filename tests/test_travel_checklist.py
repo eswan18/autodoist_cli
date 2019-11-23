@@ -7,8 +7,9 @@ import pytest
 
 from autodoist import cli
 
-KEY_ORDER = ['name', 'csv_name', 'n_days', 'can_wash', 'is_flying',
-             'dress_days', 'max_temp', 'min_temp', 'extended_outdoor_time']
+SPEC_KEY_ORDER = ['name', 'csv_name', 'n_days', 'can_wash', 'is_flying',
+                  'dress_days', 'max_temp', 'min_temp',
+                  'extended_outdoor_time']
 
 # Load trips to use as parameters.
 with open('tests/data/trips.json') as f:
@@ -40,7 +41,7 @@ def test_create_interactive(trip):
     spec = trip['spec']
     runner = CliRunner()
     # Create the user input.
-    input = '\n'.join([str(spec[key]) for key in KEY_ORDER])
+    input = '\n'.join([str(spec[key]) for key in SPEC_KEY_ORDER])
     result = runner.invoke(cli, ['travel-checklist', 'create'],
                            input=input)
     assert result.exit_code == 0
@@ -53,8 +54,12 @@ def test_create_json_file(trip):
     # Use a temp file to store the trip json for the duration of the test.
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as f_json:
         f_json.write(json.dumps(trip['spec']))
+        # Jump back to the beginning of the file so that we can read its
+        # contents.
         f_json.seek(0)
         result = runner.invoke(cli, ['travel-checklist', 'create',
                                      '--json-file', f_json.name])
     assert result.exit_code == 0
+    # Did we create the output file?
+    assert Path(trip['spec']['csv_name']).exists()
 
