@@ -22,7 +22,10 @@ def travel_checklist():
               help='json file with specification of checklist')
 @click.option('--yaml-file', 
               help='yaml file with specification of checklist')
-def create(json_file, yaml_file):
+@click.option('--overwrite', '-o', is_flag=True,
+              help='automatically overwrite output files in case of name'
+                   ' collisions')
+def create(json_file, yaml_file, overwrite):
     '''Create a new travel checklist.'''
     if json_file is not None and yaml_file is not None:
         msg = 'At most one of --json-file and --yaml-file may be specififed'
@@ -39,7 +42,7 @@ def create(json_file, yaml_file):
 
     # Create the CSV.
     csv_path = Path(specs['csv_name'])
-    if csv_path.exists():
+    if csv_path.exists() and not overwrite:
         msg = '{} already exists. Do you want to overwrite it?'
         click.confirm(msg.format(csv_path), abort=True)
     with open(csv_path, 'w') as f:
