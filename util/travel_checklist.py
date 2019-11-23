@@ -1,4 +1,5 @@
 import json
+import math
 
 import click
 
@@ -68,10 +69,72 @@ def gen_travel_checklist_csv_from_specs(specs):
             if len(item) > 2:
                 csv_str += make_note_line(item[2])
     return csv_str
+                
+def make_task_line(task_name, priority=4, indent=1):
+    return 'task,{},{},{},,,,,'.format(task_name, priority, indent) + '\n'
+
+def make_note_line(note_name):
+    return 'note,{},,,,,,,'.format(note_name) + '\n'
 
 def gen_items_and_quantities_by_category(specs):
+    # Some meta-parameters.
+    n_days = specs['n_days']
+    if specs['can_wash']:
+        n_days_wash = math.ceil(n_days / 2) + 1)
+    else:
+        n_days_wash = n_days
+    max_temp, min_temp = specs['max_temp'], specs['min_temp']
+    avg_temp = (max_temp + min_temp) / 2
+    dress_days = specs['dress_days']
+    is_flying = specs['is_flying']
+    # This feels hacky but it's going to be cumbersome no matter how we do it.
+
+    daily_wear = []
+    # --- Underwear
+    daily_wear += ('Underwear', n_days_wash + 2)
+    # --- Undershirts
+    daily_wear += ('Undershirts', n_days_wash)
+    # --- Jeans/chinos
+    if min_temp >= 70:
+        n_jeans = 0 if n_days_wash < 2 else 1
+    # A lot has to happen to bring 3 pairs of jeans.
+    elif max_temp <= 75 and n_days_wash >= 7 and not specs['is_flying']:
+        n_jeans = 3
+    else:
+        n_jeans = 2
+    daily_wear += ('Jeans/chinos', n_jeans, 'Consider customizing based on weather')
+    # --- Dress pants
+    if dress_days > 2:
+        daily_wear += ('Dress pants', 2,
+                       "Reduce if you'll have a chance to do laundry")
+    elif dress_days > 0:
+        daily_wear += ('Dress pants', 1)
+    # --- Dress shirts
+    n_dress_shirts = dress_days
+    if can_wash and is_flying:
+        n_dress_shirts = math.ceil(n_dress_shirts / 2)
+    daily_wear += ('Dress shirts', n_dress_shirts)
+    # --- Dress socks
+    n_nice_socks = max(n_jeans + n_dress_pants, n_days_wash)
+    daily_wear += ('Nice socks', n_nice_socks)
+    # --- Tshirts
+    daily_wear += ('T-shirts', n_days_wash - 1)
+    # --- Belts
+    if dress_days > 0:
+        daily_wear += ('Belts', 1)
+    # --- Decent shoes
+    if dress_days > 0:
+        daily_wear += ('Decent shoes', 1)
+    elif n_days_wash > 2 and n_jeans > 0:
+        daily_wear += ('Decent shoes', 'Optional')
+    # --- Polos/buttondowns
+    n_polos = min(n_days_wash - 2, 2) if n_days_was > 2 else 1
+    daily_wear += ('Casual polos/buttondowns', n_polos)
+
+    workout = []
     return {
-        'footwear': [
+        'daily_wear': daily_wear,
+        [
             ('shoes', 2, 'remember these'),
             ('socks', 2)
         ],
@@ -79,9 +142,4 @@ def gen_items_and_quantities_by_category(specs):
             ('hat', 1)
         ]
     }
-                
-def make_task_line(task_name, priority=4, indent=1):
-    return 'task,{},{},{},,,,,'.format(task_name, priority, indent) + '\n'
 
-def make_note_line(note_name):
-    return 'note,{},,,,,,,'.format(note_name) + '\n'
