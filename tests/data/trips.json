@@ -1,16 +1,28 @@
 [
     {
         "spec": {
-            "name": "test-trip",
-            "csv_name": "test-trip.csv",
-            "n_days": 5,
+            "name": "sf-2019",
+            "csv_name": "sf-2019.csv",
+            "n_days": 6,
             "can_wash": false,
-            "is_flying": false,
-            "dress_days": 2,
-            "max_temp": 88,
-            "min_temp": 55,
-            "extended_outdoor_time": false
+            "is_flying": true,
+            "dress_days": 0,
+            "max_temp": 75,
+            "min_temp": 50,
+            "extended_outdoor_time": true
+        }
+    },
+    {
+        "spec": {
+            "name": "savannah-2019",
+            "csv_name": "sav-2019.csv",
+            "n_days": 8,
+            "can_wash": true,
+            "is_flying": true,
+            "dress_days": 1,
+            "max_temp": 78,
+            "min_temp": 48,
+            "extended_outdoor_time": true
         }
     }
 ]
-
