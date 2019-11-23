@@ -5,6 +5,8 @@ import click
 JACKET_TEMP_THRESHOLD = 50
 COAT_TEMP_THRESHOLD = 40
 GLOVES_TEMP_THRESHOLD = 35
+CSV_COL_NAMES = ['TYPE', 'CONTENT', 'PRIORITY', 'INDENT', 'AUTHOR',
+                 'RESPONSIBLE', 'DATE', 'DATE_LANG', 'TIMEZONE']
 
 def get_specs_from_user():
     name = click.prompt('Name for the project')
@@ -52,4 +54,34 @@ def load_specs_from_file(file, format):
     return specs
 
 def gen_travel_checklist_csv_from_specs(specs):
-    return ''
+    # Outsource the hard part to another function.
+    category_items = gen_items_and_quantities_by_category(specs)
+    # Format properly for Todoist, starting with a header.
+    csv_str = ','.join(CSV_COL_NAMES) + '\n'
+    for category, items in category_items.items():
+        csv_str += make_task_line(category, indent=1)
+        for item in items:
+            item_name, item_quant = item[0], item[1]
+            item_content = '{} ({})'.format(item_name, item_quant)
+            csv_str += make_task_line(item_content, indent=2)
+            # If the item has a note attached, add a line appropriately.
+            if len(item) > 2:
+                csv_str += make_note_line(item[2])
+    return csv_str
+
+def gen_items_and_quantities_by_category(specs):
+    return {
+        'footwear': [
+            ('shoes', 2, 'remember these'),
+            ('socks', 2)
+        ],
+        'headwear': [
+            ('hat', 1)
+        ]
+    }
+                
+def make_task_line(task_name, priority=4, indent=1):
+    return 'task,{},{},{},,,,,'.format(task_name, priority, indent) + '\n'
+
+def make_note_line(note_name):
+    return 'note,{},,,,,,,'.format(note_name) + '\n'
