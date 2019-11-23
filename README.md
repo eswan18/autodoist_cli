@@ -4,5 +4,7 @@
 
 A multi-use command line interface for working with [Todoist](http://todoist.com/).
 
-## Subcommands
+## Commands
 - `travel-checklist`: For working with travel checklists, representing them using Todoist projects. Given certain inputs about a trip (e.g. number of days), Autodoist can instantiate a checklist with reasonable defaults in terms of items and quantities.
+- **Subcommands**
+    - `create`: Generate a new checklist
