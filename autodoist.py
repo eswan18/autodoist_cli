@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-import click
-import json
 import os
 from pathlib import Path
+
+import click
+
 import util.travel_checklist as tc_util
 
 @click.group()
@@ -18,20 +18,21 @@ def travel_checklist():
     pass
 
 @travel_checklist.command()
-@click.option('--file', 
+@click.option('--json-file', 
               help='json file with specification of checklist')
-def create(file):
+@click.option('--yaml-file', 
+              help='yaml file with specification of checklist')
+def create(json_file, yaml_file):
     '''Create a new travel checklist.'''
-    if file is not None:
-        try:
-            with open(file) as f:
-                specs = json.loads(f.read())
-        except json.decoder.JSONDecodeError as e:
-            # Raise a JSONDecodeError with a better message than the automatic
-            # one.
-            msg = 'File {} is not valid JSON'.format(file)
-            raise json.decoder.JSONDecodeError(msg, doc=e.doc, pos=e.pos)
+    if json_file is not None and yaml_file is not None:
+        msg = 'At most one of --json-file and --yaml-file may be specififed'
+        raise ValueError(msg)
+    elif json_file is not None:
+        specs = tc_util.load_specs_from_file(json_file, format='json')
+    elif yaml_file is not None:
+        specs = tc_util.load_specs_from_file(yaml_file, format='yaml')
     else:
+        # Interactively prompt the user for specs.
         specs = tc_util.get_specs_from_user()
     # Extended outdoor time may not be included in the spec; assume it's false.
     specs['extended_outdoor_time'] = specs.get('extended_outdoor_time', False)

@@ -1,3 +1,5 @@
+import json
+
 import click
 
 JACKET_TEMP_THRESHOLD = 50
@@ -29,6 +31,25 @@ def get_specs_from_user():
                                              ' might be somewhat cold?',
                                              type=bool, prompt_suffix=' ')
     return locals()
+
+def load_specs_from_file(file, format):
+    if format.lower() == 'json':
+        try:
+            with open(file) as f:
+                specs = json.loads(f.read())
+        except json.decoder.JSONDecodeError as e:
+            # Raise a JSONDecodeError with a better message than the automatic
+            # one.
+            msg = 'File {} is not valid JSON'.format(file)
+            raise json.decoder.JSONDecodeError(msg, doc=e.doc, pos=e.pos)
+    elif format.lower() == 'yaml':
+        # TODO
+        msg = 'haven\'t gotten to yaml reading yet'
+        raise NotImplementedError(msg)
+    else:
+        msg = 'Unknown format. Format should be one of [json, yaml]'
+        raise ValueError(msg)
+    return specs
 
 def gen_travel_checklist_csv_from_specs(specs):
     return ''
